@@ -1,4 +1,4 @@
-import type admin from "firebase-admin";
+import admin from "firebase-admin";
 import { getTenantId } from "@/lib/tenant-context";
 
 export function tenantUsersCollection(db: admin.firestore.Firestore) {
