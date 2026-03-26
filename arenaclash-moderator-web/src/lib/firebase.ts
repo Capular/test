@@ -3,26 +3,41 @@ import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getAnalytics, isSupported } from "firebase/analytics";
 
-function requireEnv(name: string): string {
-    const value = process.env[name];
-    if (!value) {
-        throw new Error(`Missing required Firebase env var: ${name}`);
-    }
-    return value;
-}
-
 const firebaseConfig = {
-    apiKey: requireEnv("NEXT_PUBLIC_FIREBASE_API_KEY"),
-    authDomain: requireEnv("NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN"),
-    projectId: requireEnv("NEXT_PUBLIC_FIREBASE_PROJECT_ID"),
-    storageBucket: requireEnv("NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET"),
-    messagingSenderId: requireEnv("NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID"),
-    appId: requireEnv("NEXT_PUBLIC_FIREBASE_APP_ID"),
-    measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
+    apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "",
+    authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || "",
+    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "",
+    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || "",
+    messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || "",
+    appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || "",
+    measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-// Initialize Firebase
-const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+export const hasRequiredFirebaseConfig = [
+    firebaseConfig.apiKey,
+    firebaseConfig.authDomain,
+    firebaseConfig.projectId,
+    firebaseConfig.storageBucket,
+    firebaseConfig.messagingSenderId,
+    firebaseConfig.appId,
+].every(Boolean);
+
+const fallbackFirebaseConfig = {
+    apiKey: "demo-api-key",
+    authDomain: "demo.firebaseapp.com",
+    projectId: "demo-project",
+    storageBucket: "demo.appspot.com",
+    messagingSenderId: "000000000000",
+    appId: "1:000000000000:web:demoapp",
+    measurementId: undefined,
+};
+
+if (!hasRequiredFirebaseConfig && typeof window !== "undefined") {
+    console.warn("Firebase config is missing. App is running in limited mode until env vars are configured.");
+}
+
+const resolvedConfig = hasRequiredFirebaseConfig ? firebaseConfig : fallbackFirebaseConfig;
+const app = getApps().length > 0 ? getApp() : initializeApp(resolvedConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
