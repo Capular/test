@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - Fast & Secure</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<style>
+    body {
+        font-family: "Poppins", sans-serif; /* Updated to use Poppins font */
+        background: linear-gradient(110deg, #335580, #ff0000); 
+        display: flex; /* Use flexbox for centering */
+        justify-content: center; /* Center horizontally */
+        align-items: center; /* Center vertically */
+        height: 100vh; /* Make body height 100% of viewport height */
+        text-align: center;
+        overflow: hidden;
+    }
+
+    input, button {
+       font-family: "Poppins", sans-serif;
+    }
+    
+    .container {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: white;
+        max-width: 400px;
+        width: calc(100% - 30px); /* 20px margin on left and right */
+        border-radius: 20px; /* Overall rounded corners */
+        height: auto;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .background-box {
+        background-color: #ff00bb; /* Set background color to green */
+        padding: 20px; /* Padding for inner content */
+        border-top-left-radius: 20px; /* Rounded corners for the top left */
+        border-top-right-radius: 20px; /* Rounded corners for the top right */
+        color: white; /* Text color */
+        text-align: left; /* Align text to the left */
+        
+    }
+    .header {
+        display: flex; /* Use Flexbox for layout */
+        align-items: center; /* Center items vertically */
+        margin-bottom: 10px; /* Space below the header */
+    }
+    img.logo {
+        width: 70px;
+        height: 70px;
+        border-radius: 8px;
+        margin-right: 10px; /* Space between logo and text */
+    }
+    .company-info {
+        display: flex; /* Use Flexbox for vertical alignment */
+        flex-direction: column; /* Arrange items vertically */
+    }
+    h2 {
+        font-size: 24px;
+        margin: 8px 0 0; /* Added 4px margin at the top */
+        color: white; /* White color for the company name */
+    }
+    
+    .order-number {
+        font-size: 12px; /* Smaller font size for order number */
+        color: #ccc; /* Grey color for order number */
+    }
+    .amount {
+        font-size: 20px;
+    }
+    .qr-code {
+        margin: 20px 0;
+        text-align: center; /* Center align the QR code */
+    }
+    
+    .qr-code img {
+        width: 200px;
+        height: 200px;
+        display: inline-block; 
+        margin: 0 auto;     
+    }
+
+
+    input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        margin: 10px 0;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+    button {
+        padding: 10px 20px;
+        background-color: #005f5b;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    button:hover {
+        background-color: #004c48;
+    }
+    .payment-methods {
+        margin: 20px 0;
+        margin-left: 8px;
+        text-align: center; /* Left align payment methods */
+        display: none;
+    }
+
+    .payment-methods h2 {
+        text-align: center;
+        color: #000;
+        font-size: 16px;
+        margin-bottom: 8px;
+    }
+    .payment-methods div {
+        display: inline-block;
+        margin-right: 10px;
+        margin-left: 10px;
+        width: 30%;
+        text-align: center;
+        padding: 10px;
+        border: 1px solid #ccc; /* Grey border */
+        border-radius: 8px; /* Rounded corners */
+        background-color: #f9f9f9; /* Light grey background */
+    }
+
+    .payment-methods img {
+        max-width: 30px; /* Reduce image size */
+        margin: 5px; /* Add margin around images */
+        vertical-align: middle; /* Align images vertically */
+    }
+
+    .payment-utr h2 {
+        text-align: center;
+        color: #000;
+        font-size: 16px;
+        margin-bottom: 0px;
+    }
+    .payment-label {
+        display: block; /* Display labels as block for each image */
+        font-size: 14px; /* Label font size */
+    }
+
+    .payment-utr input[type="text"] {
+        width: 80%; /* Adjust the width to create left/right margins */
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+    .payment-utr button {
+        width: 60%; /* Make the button as wide as the input field */
+        padding: 12px;
+        background-color: #005f5b;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    .payment-utr button:hover {
+        background-color: #004c48; /* Darkened color */
+    }
+
+    body.swal2-shown {
+        overflow: hidden;
+    }
+
+    footer {
+        margin-top: 30px;
+        font-size: 12px;
+    }
+
+    #timer {
+        font-size: 14px;
+    }
+
+    @media (max-width: 600px) {
+        .payment-methods {
+            display: none;
+        }
+    }
+
+
+</style>
+
+<body>
+    <div class="container">
+        <div class="background-box">
+            <div class="header">
+                <img src="https://storage.paybyapi.co.in/dir/67271ed243ae2.jpeg" alt="Company Logo" class="logo">
+                <div class="company-info">
+                    <h2>ANU PAID SCRIM</h2>
+                    <div class="order-number">TXN ID: ZAPUPI69a9146ad41f5</div> <!-- Added order number -->
+                    <div class="amount">₹<span id="amount">10</span></div> <!-- Moved amount here -->
+                </div>
+            </div>
+        </div>  
+        
+        <!-- QR Code Generation -->
+        <div class="qr-code">
+            <img id="qrCode" src="" alt=" ">
+            <br> <!-- Line break for spacing -->
+            <div id="timer">Timer: 10:00</div>
+            <button id="downloadQr" style="margin-top: 8px; display: none;">Download QR Code</button>
+        </div>
+
+        <div class="payment-methods">
+            <h2>PAY USING APPS</h2>
+           
+           <div id="paytm-app" style="display: none;">
+               <img src="https://storage.paybyapi.co.in/images/paytm.png" alt="Paytm" title="Paytm">
+               <span class="payment-label">Paytm</span>
+           </div>
+           
+           <div id="upi-app" style="display: none;">
+               <img src="https://storage.paybyapi.co.in/images/upi.png" alt="UPI" title="UPI">
+               <span class="payment-label">UPI</span>
+           </div>
+       </div>
+
+        <div class="payment-utr" style="display: none;">
+            <h2>CONFIRM WITH UTR</h2>
+           <input type="text" id="utr" placeholder="Enter UTR" required>
+           <button id="submitPayment">Submit</button>
+        </div>
+        <footer>
+            <p>Provided by <span style="font-weight: bold;">ZapUPI</span></p>
+         </footer>
+    </div>
+</body>
+</html>
+
+<script>
+    
+    document.getElementById('paytm-app').addEventListener('click', function() {
+        window.location.href = 'paytmmp://cash_wallet?featuretype=money_transfer&pa=8999322106@yapl&pn=ANU PAID SCRIM&am=10&tr=xg6I5g6vYU1772688491&tn=ZAPUPI69a9146ad41f5&tid=xg6I5g6vYU1772688491';
+    });
+
+    document.getElementById('upi-app').addEventListener('click', function() {
+        window.location.href = 'upi://pay?pa=8999322106@yapl&pn=ANU PAID SCRIM&cu=INR&am=10&tr=xg6I5g6vYU1772688491&tn=ZAPUPI69a9146ad41f5&tid=xg6I5g6vYU1772688491';
+    });
+        
+        // QR Code Generation
+        const amount = document.getElementById('amount').innerText;
+        const qrCodeImage = document.getElementById('qrCode');
+        
+        function generateQRCode() {
+            const qrData = `upi://pay?pa=8999322106@yapl&pn=ANU PAID SCRIM&cu=INR&am=10&tr=xg6I5g6vYU1772688491&tn=ZAPUPI69a9146ad41f5&tid=xg6I5g6vYU1772688491`;
+            qrCodeImage.src = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(qrData)}&size=300x300`;
+        }
+
+
+        generateQRCode();
+
+        // Download QR Code
+        document.getElementById('downloadQr').addEventListener('click', function() {
+            const qrCodeImage = document.getElementById('qrCode').src;
+
+            // Fetch the image as a blob
+            fetch(qrCodeImage)
+                .then(response => response.blob()) // Convert the image to a blob
+                .then(blob => {
+                    const link = document.createElement('a');
+                    const objectURL = URL.createObjectURL(blob); // Create URL for the blob
+                    link.href = objectURL;
+                    link.download = 'qr-code.png'; // Set the downloaded file name
+                    document.body.appendChild(link); // Append the link to the body
+                    link.click(); // Trigger the download
+                    document.body.removeChild(link); // Remove the link after downloading
+
+                    // Cleanup the object URL to avoid memory leaks
+                    URL.revokeObjectURL(objectURL);
+                })
+                .catch(error => {
+                    console.error('Error downloading the image:', error);
+                });
+        });
+
+
+        let timer;
+        let timeRemaining = 300; // 5 minutes in seconds
+        const timerDisplay = document.getElementById('timer');
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+            timerDisplay.textContent = `Timer: ${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        }
+
+        function startTimer() {
+            timer = setInterval(() => {
+                if (timeRemaining > 0) {
+                    timeRemaining--;
+                    updateTimerDisplay();
+                } else {
+                    clearInterval(intervalId);
+                    clearInterval(timer);
+                Swal.fire({
+                    title: 'Time Up!',
+                    text: 'Payment time Up Try agian.',
+                    icon: 'error',
+                    allowOutsideClick: false,
+                    backdrop: true,
+                    confirmButtonText: 'OK',
+                    preConfirm: () => {
+                        window.location.href = 'http://localhost:3000/test';
+                        return false;
+                    }
+                });
+                }
+            }, 1000);
+        }
+        startTimer();
+        updateTimerDisplay();
+
+        // Auto Check
+        let intervalId;
+        let isRequestInProgress = false; // Flag to prevent multiple simultaneous requests
+        const autoPayment = 'On';
+
+        function checkStatus() {
+            // Only proceed if there's no ongoing request
+            if (isRequestInProgress) return;
+            isRequestInProgress = true; // Set the flag to true
+
+            fetch('https://api.zapupi.com/auto-check-WkFQVVBJNjlhOTE0NmFkNDFmNQ') // Ensure this points to the correct URL
+                .then(response => response.json())
+                .then(data => {
+
+                    if (autoPayment === 'Off') {
+                        clearInterval(intervalId);  // Stop the interval
+                    }
+
+                    // Check if the status is SUCCESS
+                    if (data.status === 'SUCCESS') {
+                        clearInterval(intervalId); // Stop further checks
+
+                        let countdownTime = 3;  // Time in seconds
+                        const timerInterval = setInterval(() => {
+                            // Update the footer with remaining time
+                            Swal.getFooter().innerHTML = `
+                                <div style="text-align: center;">
+                                    Thank you for your payment!<br>
+                                    You will be redirected in <strong>${countdownTime}</strong> seconds.
+                                </div>
+                            `;
+                            countdownTime--;  // Decrease the time
+
+                            if (countdownTime < 0) {
+                                clearInterval(timerInterval);  // Clear interval when time reaches 0
+                            }
+                        }, 1000);
+
+                        Swal.fire({
+                            title: 'Success',
+                            text: 'Payment received successfully.',
+                            icon: 'success',
+                            allowOutsideClick: false,
+                            backdrop: true,
+                            footer: `<div style="text-align: center;">
+                                    Thank you for your payment!<br>
+                                    You will be redirected in <strong>${countdownTime}</strong> seconds.
+                                </div>`,
+                            timer: 4000,  // Timer to auto-close after 3 seconds
+                            timerProgressBar: true,  // Show a progress bar while timer counts down
+                            showConfirmButton: false,  // Hide the confirm button for auto-close effect
+                            willClose: () => {
+                                window.location.href = 'http://localhost:3000/test';
+                                return false;
+                            }
+                        });
+                    } else if (data.status === 'FAILED') {
+                        clearInterval(intervalId); // Stop further checks
+                        Swal.fire({
+                            title: 'Failed',
+                            text: 'Payment already failed!',
+                            icon: 'error',
+                            allowOutsideClick: false,
+                            backdrop: true,
+                            confirmButtonText: 'OK',
+                            preConfirm: () => {
+                                window.location.href = 'http://localhost:3000/test';
+                                return false;
+                            }
+                        });
+                    } else if(data.status === 'Disable') {
+                        clearInterval(intervalId);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                })
+                .finally(() => {
+                    isRequestInProgress = false; // Reset the flag to allow future requests if needed
+                });
+        }
+
+        // Start checking every 3 seconds and store the interval ID
+        intervalId = setInterval(checkStatus, 2000);
+
+    // Handle Submit Payment
+    document.getElementById('submitPayment').addEventListener('click', function() {
+            const utr = document.getElementById('utr').value;
+            const id = 'WkFQVVBJNjlhOTE0NmFkNDFmNQ';
+            const fullUrl = 'https://api.zapupi.com/';
+            
+            if (utr.trim() === '') {
+                Swal.fire({
+                    title: 'Oops...',
+                    text: 'Please enter a UTR number!',
+                    icon: 'error',
+                    allowOutsideClick: false,
+                    backdrop: true,
+                });
+                return;
+            }
+            
+            Swal.fire({
+                title: 'Processing...',
+                text: 'Please wait check the UTR number.',
+                allowOutsideClick: false,
+                backdrop: true,
+                didOpen: () => {
+                    Swal.showLoading(); // Show loading animation
+                }
+            });
+
+            // Perform AJAX call to submit the UTR code
+            fetch(fullUrl + 'utr-check-' + id + '-' + utr, {
+                method: 'GET', // Keep as GET
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                Swal.close();
+                if (data.status === 'SUCCESS') {
+                    clearInterval(intervalId);
+                    clearInterval(timer);
+
+                        let countdownTime = 3;  // Time in seconds
+                        const timerInterval = setInterval(() => {
+                            // Update the footer with remaining time
+                            Swal.getFooter().innerHTML = `
+                                <div style="text-align: center;">
+                                    Thank you for your payment!<br>
+                                    You will be redirected in <strong>${countdownTime}</strong> seconds.
+                                </div>
+                            `;
+                            countdownTime--;  // Decrease the time
+
+                            if (countdownTime < 0) {
+                                clearInterval(timerInterval);  // Clear interval when time reaches 0
+                            }
+                        }, 1000);
+
+                        Swal.fire({
+                            title: 'Success',
+                            text: 'Payment received successfully.',
+                            icon: 'success',
+                            allowOutsideClick: false,
+                            backdrop: true,
+                            footer: `<div style="text-align: center;">
+                                    Thank you for your payment!<br>
+                                    You will be redirected in <strong>${countdownTime}</strong> seconds.
+                                </div>`,
+                            timer: 4000,  // Timer to auto-close after 3 seconds
+                            timerProgressBar: true,  // Show a progress bar while timer counts down
+                            showConfirmButton: false,  // Hide the confirm button for auto-close effect
+                            willClose: () => {
+                                window.location.href = 'http://localhost:3000/test';
+                                return false;
+                            }
+                        });
+                } else {
+                    Swal.fire({
+                       title: 'Failed',
+                       text: 'Invalid UTR!',
+                       icon: 'error',
+                       allowOutsideClick: false,
+                       backdrop: true,
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                       title: 'Failed',
+                       text: 'An unexpected error occurred. Please try again.',
+                       icon: 'error',
+                       allowOutsideClick: false,
+                       backdrop: true,
+                    });
+            });
+        });
+
+</script>

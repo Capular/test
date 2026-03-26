@@ -1,0 +1,276 @@
+"use client";
+
+import { useRef, useEffect, useState, useCallback, useLayoutEffect } from "react";
+import { Users, Trophy, LogOut, Gamepad2, CreditCard, Shield, ChevronDown, User, BellRing, ExternalLink } from "lucide-react";
+import { cn, getMasterPanelUrl } from "@/lib/utils";
+import gsap from "gsap";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { signOut } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+import { useRouter, usePathname } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
+
+export default function AdminSidebar() {
+    const sidebarRef = useRef<HTMLDivElement>(null);
+    const navItemsRef = useRef<(HTMLButtonElement | null)[]>([]);
+    const logoRef = useRef<HTMLDivElement>(null);
+    const bottomRef = useRef<HTMLDivElement>(null);
+    const { user } = useAuth();
+    const router = useRouter();
+    const pathname = usePathname();
+    const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+    const [isAnimating, setIsAnimating] = useState(true);
+    const profileRef = useRef<HTMLDivElement>(null);
+    const dropdownRef = useRef<HTMLDivElement>(null);
+    const masterPanelUrl = getMasterPanelUrl();
+
+    const menuItems = [
+        { id: "games", label: "Games", icon: Gamepad2, path: "/admin/games" },
+        { id: "tournaments", label: "Tournaments", icon: Trophy, path: "/admin/tournaments" },
+        { id: "users", label: "Users", icon: Users, path: "/admin/users" },
+        { id: "transactions", label: "Transactions", icon: CreditCard, path: "/admin/transactions" },
+        { id: "notifications", label: "Notifications", icon: BellRing, path: "/admin/notifications" },
+    ];
+
+    const isActive = (path: string) => pathname.startsWith(path);
+
+    // Entrance animation
+    useLayoutEffect(() => {
+        const sidebar = sidebarRef.current;
+        const logo = logoRef.current;
+        const bottom = bottomRef.current;
+        const navItems = navItemsRef.current.filter(Boolean);
+
+        if (!sidebar) return;
+
+        const tl = gsap.timeline({
+            defaults: { ease: "power3.out" },
+            onComplete: () => setIsAnimating(false)
+        });
+
+        tl.fromTo(sidebar, { x: -60, opacity: 0 }, { x: 0, opacity: 1, duration: 0.5 })
+            .fromTo(logo, { scale: 0.8, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.4 }, "-=0.3")
+            .fromTo(navItems, { x: -20, opacity: 0 }, { x: 0, opacity: 1, duration: 0.3, stagger: 0.05 }, "-=0.25")
+            .fromTo(bottom, { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4 }, "-=0.25");
+
+        return () => {
+            tl.kill();
+            gsap.set(sidebar, { x: 0, opacity: 1 });
+            gsap.set(logo, { scale: 1, opacity: 1 });
+            gsap.set(navItems, { x: 0, opacity: 1 });
+            gsap.set(bottom, { y: 0, opacity: 1 });
+            setIsAnimating(false);
+        };
+    }, []);
+
+    // Click outside to close profile menu
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
+                setIsProfileMenuOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    // Profile dropdown animation
+    useEffect(() => {
+        if (dropdownRef.current && isProfileMenuOpen) {
+            gsap.fromTo(dropdownRef.current,
+                { opacity: 0, y: 8, scale: 0.97 },
+                { opacity: 1, y: 0, scale: 1, duration: 0.15, ease: "power2.out" }
+            );
+        }
+    }, [isProfileMenuOpen]);
+
+    // Hover handlers
+    const handleNavEnter = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+        if (isAnimating) return;
+        gsap.to(e.currentTarget, {
+            x: 4,
+            backgroundColor: "rgba(var(--primary-rgb), 0.08)",
+            duration: 0.15,
+            ease: "power2.out",
+            overwrite: true,
+        });
+        const icon = e.currentTarget.querySelector('.nav-icon');
+        if (icon) {
+            gsap.to(icon, { scale: 1.1, duration: 0.15, ease: "power2.out", overwrite: true });
+        }
+    }, [isAnimating]);
+
+    const handleNavLeave = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+        if (isAnimating) return;
+        const isItemActive = e.currentTarget.dataset.active === "true";
+        gsap.to(e.currentTarget, {
+            x: 0,
+            backgroundColor: isItemActive ? "rgba(var(--primary-rgb), 0.12)" : "transparent",
+            duration: 0.15,
+            ease: "power2.out",
+            overwrite: true,
+        });
+        const icon = e.currentTarget.querySelector('.nav-icon');
+        if (icon) {
+            gsap.to(icon, { scale: 1, duration: 0.15, ease: "power2.out", overwrite: true });
+        }
+    }, [isAnimating]);
+
+    const handleProfileEnter = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+        gsap.to(e.currentTarget, { scale: 1.015, duration: 0.12, ease: "power2.out", overwrite: true });
+    }, []);
+
+    const handleProfileLeave = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+        gsap.to(e.currentTarget, { scale: 1, duration: 0.12, ease: "power2.out", overwrite: true });
+    }, []);
+
+    const handleLogout = async () => {
+        try {
+            await signOut(auth);
+            router.push('/');
+        } catch (error) {
+            console.error("Logout error", error);
+        }
+    };
+
+    const openMasterPanel = () => {
+        if (!masterPanelUrl) return;
+        window.open(masterPanelUrl, "_blank", "noopener,noreferrer");
+    };
+
+    const setNavRef = (el: HTMLButtonElement | null, index: number) => {
+        navItemsRef.current[index] = el;
+    };
+
+    return (
+        <aside
+            ref={sidebarRef}
+            className="hidden lg:flex w-56 h-[100dvh] bg-background/95 backdrop-blur-xl border-r border-border/30 flex-col justify-between fixed left-0 top-0 z-50"
+        >
+            {/* Gradient accent line */}
+            <div className="absolute right-0 top-0 bottom-0 w-[1px] bg-gradient-to-b from-primary/20 via-primary/5 to-transparent" />
+
+            <div className="flex flex-col flex-1 min-h-0">
+                {/* Logo Header */}
+                <div ref={logoRef} className="h-16 flex-shrink-0 flex items-center gap-3 px-5">
+                    <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg shadow-primary/20">
+                        <Shield className="h-5 w-5 text-primary-foreground" />
+                    </div>
+                    <div>
+                        <h1 className="font-rajdhani font-bold text-base text-foreground tracking-wide">
+                            Admin Panel
+                        </h1>
+                        <p className="text-[10px] text-muted-foreground -mt-0.5">Management Console</p>
+                    </div>
+                </div>
+
+                {/* Navigation */}
+                <nav className="flex-1 overflow-y-auto px-3 pt-4 space-y-1 custom-scrollbar">
+                    <div className="mb-4">
+                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground/60 font-semibold px-3 mb-2">
+                            Management
+                        </p>
+                        <div className="space-y-1">
+                            {menuItems.map((item, i) => {
+                                const active = isActive(item.path);
+                                return (
+                                    <Button
+                                        key={item.id}
+                                        ref={(el) => setNavRef(el, i)}
+                                        variant="ghost"
+                                        data-active={active}
+                                        onClick={() => router.push(item.path)}
+                                        onMouseEnter={handleNavEnter}
+                                        onMouseLeave={handleNavLeave}
+                                        className={cn(
+                                            "w-full justify-start gap-3 px-3 py-2.5 h-auto text-sm font-medium rounded-xl relative will-change-transform",
+                                            active
+                                                ? "bg-primary/10 text-primary"
+                                                : "text-muted-foreground bg-transparent"
+                                        )}
+                                    >
+                                        <item.icon className={cn(
+                                            "nav-icon h-[18px] w-[18px] will-change-transform",
+                                            active ? "text-primary" : "text-muted-foreground"
+                                        )} />
+                                        <span className="font-rajdhani">{item.label}</span>
+                                        {active && (
+                                            <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-gradient-to-b from-primary to-primary/50 rounded-full" />
+                                        )}
+                                    </Button>
+                                );
+                            })}
+                        </div>
+                    </div>
+                </nav>
+            </div>
+
+            {/* Bottom Section */}
+            <div ref={bottomRef} className="px-3 pb-4 flex-shrink-0 relative">
+                <Separator className="mb-4 bg-border/40" />
+
+                {masterPanelUrl && (
+                    <Button
+                        variant="outline"
+                        onClick={openMasterPanel}
+                        className="mb-3 w-full justify-start gap-2 text-xs"
+                    >
+                        <ExternalLink className="h-3.5 w-3.5" />
+                        Open Master Panel
+                    </Button>
+                )}
+
+
+                <div ref={profileRef}>
+                    {/* Profile Dropdown Menu */}
+                    {isProfileMenuOpen && (
+                        <div
+                            ref={dropdownRef}
+                            className="absolute bottom-full left-3 right-3 mb-2 bg-popover/95 backdrop-blur-xl border border-border/50 rounded-xl shadow-2xl overflow-hidden py-1.5 z-50"
+                        >
+                            <button
+                                onClick={handleLogout}
+                                className="w-full text-left px-4 py-2.5 text-sm text-red-400 hover:bg-red-500/10 flex items-center gap-2.5 font-medium transition-colors"
+                            >
+                                <LogOut className="h-4 w-4" />
+                                Log Out
+                            </button>
+                        </div>
+                    )}
+
+                    {/* User Profile Card */}
+                    <div
+                        onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                        onMouseEnter={handleProfileEnter}
+                        onMouseLeave={handleProfileLeave}
+                        className={cn(
+                            "flex items-center gap-3 px-3 py-3 bg-muted/30 rounded-xl cursor-pointer select-none will-change-transform",
+                            isProfileMenuOpen ? "ring-1 ring-primary/20" : ""
+                        )}
+                    >
+                        <Avatar className="h-9 w-9 ring-2 ring-background shadow-md">
+                            <AvatarImage src={user?.photoURL || undefined} alt={user?.displayName || "Admin"} className="object-cover" />
+                            <AvatarFallback className="bg-gradient-to-br from-primary/30 to-primary/10 text-primary text-xs font-bold">
+                                {user?.displayName ? user.displayName.charAt(0).toUpperCase() : <User size={14} />}
+                            </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 overflow-hidden min-w-0">
+                            <p className="text-sm font-semibold text-foreground leading-tight truncate">
+                                {user?.displayName || "Admin"}
+                            </p>
+                            <p className="text-[10px] text-muted-foreground truncate mt-0.5">
+                                {user?.email}
+                            </p>
+                        </div>
+                        <ChevronDown size={16} className={cn(
+                            "text-muted-foreground/60 will-change-transform transition-transform",
+                            isProfileMenuOpen && "rotate-180"
+                        )} />
+                    </div>
+                </div>
+            </div>
+        </aside>
+    );
+}

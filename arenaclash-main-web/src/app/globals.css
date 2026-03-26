@@ -1,0 +1,321 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Light Theme with Orange Highlights */
+
+    /* Background: Clean Off-white */
+    --background: 30 20% 98%;
+
+    /* Foreground: Dark text */
+    --foreground: 20 15% 15%;
+
+    /* Card: White Surface */
+    --card: 0 0% 100%;
+    --card-foreground: 20 15% 15%;
+
+    /* Popover */
+    --popover: 0 0% 100%;
+    --popover-foreground: 20 15% 15%;
+
+    /* Primary: Vibrant Orange */
+    --primary: 24 95% 53%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary: Light Orange Tint */
+    --secondary: 24 80% 95%;
+    --secondary-foreground: 24 90% 35%;
+
+    /* Muted: Subtle backgrounds */
+    --muted: 30 15% 94%;
+    --muted-foreground: 20 10% 45%;
+
+    /* Accent: Light Orange */
+    --accent: 24 85% 93%;
+    --accent-foreground: 24 90% 40%;
+
+    /* Destructive */
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Borders and Inputs */
+    --border: 24 20% 88%;
+    --input: 24 15% 90%;
+
+    /* Ring: Focus state (Orange) */
+    --ring: 24 95% 53%;
+
+    --radius: 0.5rem;
+
+    /* RGB values for rgba() usage */
+    --primary-rgb: 249, 115, 22;
+    --muted-rgb: 240, 235, 230;
+
+    /* Charts (Orange Scale) */
+    --chart-1: 24 95% 53%;
+    --chart-2: 30 90% 60%;
+    --chart-3: 36 85% 65%;
+    --chart-4: 20 100% 45%;
+    --chart-5: 14 100% 50%;
+  }
+
+  /* Dark mode */
+  .dark {
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
+    --primary-rgb: 250, 250, 250;
+    --muted-rgb: 38, 38, 38;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground select-none;
+  }
+}
+
+@layer utilities {
+
+  /* Premium Background System - Light Theme */
+  .premium-bg-gradient {
+    background: linear-gradient(135deg,
+        hsl(30 20% 98%) 0%,
+        hsl(30 15% 96%) 50%,
+        hsl(30 20% 98%) 100%);
+    position: relative;
+  }
+
+  /* Dark theme override */
+  .dark .premium-bg-gradient {
+    background: linear-gradient(135deg,
+        hsl(240 10% 3.9%) 0%,
+        hsl(240 10% 2.5%) 50%,
+        hsl(240 10% 3.9%) 100%);
+  }
+
+  /* Subtle noise texture overlay */
+  .premium-bg-gradient::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    opacity: 0.015;
+    pointer-events: none;
+  }
+
+  /* Premium Card Design System - Light Theme */
+  .card-premium {
+    background: linear-gradient(145deg,
+        hsl(0 0% 100%) 0%,
+        hsl(30 15% 98%) 100%);
+    border: 1px solid hsl(24 20% 90%);
+    border-radius: 0.75rem;
+    box-shadow:
+      0 1px 3px 0 rgb(0 0 0 / 0.04),
+      0 4px 12px 0 rgb(0 0 0 / 0.06),
+      0 8px 24px 0 rgb(0 0 0 / 0.04);
+    position: relative;
+    overflow: hidden;
+    will-change: transform;
+  }
+
+  /* Dark theme override */
+  .dark .card-premium {
+    background: linear-gradient(145deg,
+        hsl(240 10% 5%) 0%,
+        hsl(240 10% 3.9%) 100%);
+    border: 1px solid hsl(240 3.7% 15.9%);
+    box-shadow:
+      0 1px 2px 0 rgb(0 0 0 / 0.05),
+      0 4px 12px 0 rgb(0 0 0 / 0.15),
+      0 8px 24px 0 rgb(0 0 0 / 0.1),
+      inset 0 1px 0 0 rgb(255 255 255 / 0.05);
+  }
+
+  /* Top highlight line */
+  .card-premium::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        hsl(24 95% 53% / 0.3) 50%,
+        transparent 100%);
+  }
+
+  .dark .card-premium::before {
+    background: linear-gradient(90deg,
+        transparent 0%,
+        hsl(0 0% 100% / 0.1) 50%,
+        transparent 100%);
+  }
+
+  /* Glassmorphism Effects - Light Theme */
+  .glass-effect {
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(10px) saturate(180%);
+    -webkit-backdrop-filter: blur(10px) saturate(180%);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.06);
+  }
+
+  .dark .glass-effect {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow:
+      0 8px 32px 0 rgba(0, 0, 0, 0.37),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+  }
+
+  .glass-effect-strong {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(16px) saturate(200%);
+    -webkit-backdrop-filter: blur(16px) saturate(200%);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  .dark .glass-effect-strong {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  /* Premium Button Styles - Light Theme */
+  .btn-premium {
+    position: relative;
+    padding: 0.75rem 1.5rem;
+    font-weight: 700;
+    border-radius: 0.5rem;
+    border: 2px solid hsl(24 95% 53% / 0.3);
+    background: linear-gradient(135deg,
+        hsl(24 95% 53% / 0.1) 0%,
+        hsl(24 90% 50% / 0.05) 100%);
+    color: hsl(24 90% 40%);
+    overflow: hidden;
+    box-shadow:
+      0 4px 12px rgba(249, 115, 22, 0.15),
+      inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    will-change: transform;
+  }
+
+  .dark .btn-premium {
+    border: 2px solid hsl(0 0% 100% / 0.2);
+    background: linear-gradient(135deg,
+        hsl(0 0% 100% / 0.15) 0%,
+        hsl(0 0% 100% / 0.08) 100%);
+    color: hsl(0 0% 98%);
+    box-shadow:
+      0 4px 12px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  }
+
+  /* Gradient Border - Light Theme */
+  .gradient-border {
+    position: relative;
+    background: hsl(0 0% 100%);
+    background-clip: padding-box;
+    border: 2px solid transparent;
+    border-radius: 0.75rem;
+  }
+
+  .dark .gradient-border {
+    background: hsl(240 10% 3.9%);
+  }
+
+  .gradient-border::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 0.75rem;
+    padding: 2px;
+    background: linear-gradient(135deg,
+        hsl(24 95% 53% / 0.3),
+        hsl(24 90% 60% / 0.1),
+        hsl(24 95% 53% / 0.3));
+    background-size: 200% 200%;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  .dark .gradient-border::before {
+    background: linear-gradient(135deg,
+        hsl(0 0% 100% / 0.2),
+        hsl(0 0% 100% / 0.05),
+        hsl(0 0% 100% / 0.2));
+  }
+
+  /* Scrollbar Styling */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* Custom Scrollbar - Light Theme */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: hsl(30 15% 92%);
+    border-radius: 4px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: hsl(24 25% 75%);
+    border-radius: 4px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: hsl(24 35% 65%);
+  }
+
+  .dark .custom-scrollbar::-webkit-scrollbar-track {
+    background: hsl(240 3.7% 15.9%);
+  }
+
+  .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: hsl(240 5% 34%);
+  }
+
+  .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: hsl(240 5% 44%);
+  }
+}
